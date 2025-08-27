@@ -3,6 +3,7 @@
 A serverless AWS infrastructure for fetching, storing, and serving XAU/USD (Gold vs. US Dollar) financial data using Terraform and Python.
 
 ## Architecture
+<img width="767" height="318" alt="xauusd drawio" src="https://github.com/user-attachments/assets/64ab2795-0384-4b89-849d-a92b5651e2a0" />
 
 - **Data Source**: Twelve Data API (free tier supported)
 - **Infrastructure as Code**: Terraform
