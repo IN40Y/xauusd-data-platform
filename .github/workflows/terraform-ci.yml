@@ -1,0 +1,52 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform Plan/Apply
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: ./environments/dev
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./environments/dev
+        env:
+          TF_CLI_ARGS: "-var-file=terraform.tfvars"
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./environments/dev
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=terraform.tfvars -out=tfplan
+        working-directory: ./environments/dev
+        env:
+          TF_VAR_financial_data_api_key: ${{ secrets.FINANCIAL_DATA_API_KEY }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./environments/dev
+        env:
+          TF_VAR_financial_data_api_key: ${{ secrets.FINANCIAL_DATA_API_KEY }}
